@@ -1,0 +1,137 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class RoomManager : MonoBehaviour
+{
+    [SerializeField] int width;
+    [SerializeField] int height;
+    public static RoomManager instance;
+
+
+    private Room startRoom;
+    [SerializeField] GameObject roomBase;
+    [SerializeField] GameObject[] roomTypes;
+    public List<Room> roomPath = new List<Room>();
+    public Room[,] allRooms;
+    private void Start()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        Grid grid = new Grid(width, height, 8);
+    }
+
+    public Room LoadRoom()
+    {
+        Room temp = Instantiate(roomBase, transform.position, Quaternion.identity).GetComponent<Room>();
+        return temp;
+    }
+
+    public void Initialize(Room[,] _rooms, Grid _grid)
+    {
+        allRooms = _rooms;
+        List<Room> topRow = new List<Room>();
+        for (int x = 0; x < _rooms.GetLength(0); x++)
+        {
+            for (int y = 0; y < _rooms.GetLength(1); y++)
+            {
+                if (y == _rooms.GetLength(1) - 1)
+                {
+                    topRow.Add(_rooms[x, y]);
+                }
+            }
+        }
+
+        int RandNum = Random.Range(0, topRow.Count);
+        startRoom = topRow[RandNum];
+        startRoom.FirstRoom(_grid, this);
+    }
+
+    public void OnPathMade()//lr - lrt - lrb - lrtb
+    {
+        for (int i = 0; i < roomPath.Count; i++)
+        {
+
+            Room currentRoom = GetPath(i);
+            Room prevRoom = GetPath(i - 1);
+
+            if (prevRoom != null && i != roomPath.Count - 1)//not start and not end
+            {
+                if (currentRoom.direction == Room.Direction.Down)
+                {
+                    if (prevRoom.direction == Room.Direction.Down)
+                    {
+                        currentRoom.baseRoom = Room.Base.LRTB;
+                    }
+                    else
+                    {
+                        currentRoom.baseRoom = Room.Base.LRB;
+                    }
+                }
+                else
+                {
+                    if (prevRoom.direction == Room.Direction.Down)
+                    {
+                        currentRoom.baseRoom = Room.Base.LRT;
+                    }
+                    else
+                    {
+                        currentRoom.baseRoom = Room.Base.LR;
+                    }
+                }
+            }
+            else if (prevRoom == null && i != roomPath.Count - 1)//is start
+            {
+                if (currentRoom.direction == Room.Direction.Down)
+                {
+                    currentRoom.baseRoom = Room.Base.LRB;
+                }
+                else
+                {
+                    currentRoom.baseRoom = Room.Base.LR;
+                }
+            }
+            else if(i == roomPath.Count - 1)
+            {
+                if (prevRoom.direction == Room.Direction.Down)
+                {
+                    currentRoom.baseRoom = Room.Base.LRT;
+                }
+                else
+                {
+                    currentRoom.baseRoom = Room.Base.LR;
+                }
+            }
+        }
+
+        foreach(Room r in allRooms)
+        {
+            if(r.direction == Room.Direction.NotPath)
+            {
+                r.baseRoom = Room.Base.Random;
+                r.FInishRoom();
+            }
+            else
+            {
+                r.FInishRoom();
+            }
+        }
+    }
+    private Room GetPath(int pathIndex)
+    {
+        if (pathIndex < 0)
+        {
+            return null;
+        }
+        else if (pathIndex >= roomPath.Count)
+        {
+            return null;
+        }
+        else
+        {
+            return roomPath[pathIndex];
+        }
+    }
+}
