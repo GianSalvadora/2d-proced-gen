@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class Room : MonoBehaviour
 {
 
     public static Grid grid;
     public static RoomManager roomManager;
+
     public enum Direction
     {
         Left,
@@ -24,16 +24,17 @@ public class Room : MonoBehaviour
     }
     public enum SubBase
     {
-        closed,
-        open,
-        trap,
-        monster,
-        treasure
+        Closed = 40,
+        Trap = 30, 
+        Mobs = 20,
+        Treasure = 2
     }
 
+    public SubBase subBase;
     public Base baseRoom;
-    public Base subBase;
     public Direction direction = Direction.NotPath;
+
+    public TileGrid tileGrid;
 
     public void FirstRoom(Grid _grid, RoomManager _roomManager)
     {
@@ -115,10 +116,32 @@ public class Room : MonoBehaviour
 
     public void FInishRoom()
     {
-        if(baseRoom == Base.Random)
-        {
+        grid.GetXY(transform.position, out int x, out int y);
+        tileGrid = new TileGrid(8, 8, 1, grid.GetWorldPosition(x, y, false));
 
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if(direction != Direction.NotPath)
+        {
+            sr.color = Color.white;
         }
+        if(subBase == SubBase.Treasure)
+        {
+            sr.color = Color.yellow;
+        }
+        else if(subBase == SubBase.Closed)
+        {
+            sr.color = Color.black;
+        }
+        else if(subBase == SubBase.Mobs)
+        {
+            sr.color = Color.red;
+        }
+        else if(subBase == SubBase.Trap)
+        {
+            sr.color = Color.magenta;
+        }
+
+        
     }
 
     private int Rand(int inclusive, int exclusive)

@@ -56,7 +56,7 @@ public class RoomManager : MonoBehaviour
 
             Room currentRoom = GetPath(i);
             Room prevRoom = GetPath(i - 1);
-
+            Transform trans = null;
             if (prevRoom != null && i != roomPath.Count - 1)//not start and not end
             {
                 if (currentRoom.direction == Room.Direction.Down)
@@ -64,10 +64,12 @@ public class RoomManager : MonoBehaviour
                     if (prevRoom.direction == Room.Direction.Down)
                     {
                         currentRoom.baseRoom = Room.Base.LRTB;
+                        trans = Instantiate(roomTypes[3], currentRoom.transform.position, Quaternion.identity).transform;
                     }
                     else
                     {
                         currentRoom.baseRoom = Room.Base.LRB;
+                        trans = Instantiate(roomTypes[2], currentRoom.transform.position, Quaternion.identity).transform;
                     }
                 }
                 else
@@ -75,10 +77,12 @@ public class RoomManager : MonoBehaviour
                     if (prevRoom.direction == Room.Direction.Down)
                     {
                         currentRoom.baseRoom = Room.Base.LRT;
+                        trans = Instantiate(roomTypes[1], currentRoom.transform.position, Quaternion.identity).transform;
                     }
                     else
                     {
                         currentRoom.baseRoom = Room.Base.LR;
+                        trans = Instantiate(roomTypes[0], currentRoom.transform.position, Quaternion.identity).transform;
                     }
                 }
             }
@@ -87,10 +91,12 @@ public class RoomManager : MonoBehaviour
                 if (currentRoom.direction == Room.Direction.Down)
                 {
                     currentRoom.baseRoom = Room.Base.LRB;
+                    trans = Instantiate(roomTypes[2], currentRoom.transform.position, Quaternion.identity).transform;
                 }
                 else
                 {
                     currentRoom.baseRoom = Room.Base.LR;
+                    trans = Instantiate(roomTypes[0], currentRoom.transform.position, Quaternion.identity).transform;
                 }
             }
             else if(i == roomPath.Count - 1)
@@ -98,19 +104,44 @@ public class RoomManager : MonoBehaviour
                 if (prevRoom.direction == Room.Direction.Down)
                 {
                     currentRoom.baseRoom = Room.Base.LRT;
+                    trans = Instantiate(roomTypes[1], currentRoom.transform.position, Quaternion.identity).transform;
                 }
                 else
                 {
                     currentRoom.baseRoom = Room.Base.LR;
+                    trans = Instantiate(roomTypes[0], currentRoom.transform.position, Quaternion.identity).transform;
                 }
             }
+
+            List<Transform> allChild = new List<Transform>();
+            foreach (Transform child in trans)
+            {
+                allChild.Add(child);
+            }
+            foreach(Transform child in allChild)
+            {
+                child.parent = currentRoom.transform;
+            }
+
+            Destroy(trans.gameObject);
         }
 
         foreach(Room r in allRooms)
         {
             if(r.direction == Room.Direction.NotPath)
             {
-                r.baseRoom = Room.Base.Random;
+                System.Array choices = System.Enum.GetValues(typeof(Room.SubBase));
+                List<Room.SubBase> type = new List<Room.SubBase>();
+                foreach(Room.SubBase i in choices)
+                {
+                    int amt = (int)i;
+                    for (int x = 0; x <= amt ; x++)
+                    {
+                        type.Add(i);
+                    }
+                }
+
+                r.subBase = type[Random.Range(0, type.Count)];
                 r.FInishRoom();
             }
             else

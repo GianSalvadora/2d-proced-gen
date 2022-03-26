@@ -22,8 +22,8 @@ public class Grid
         {
             for (int y = 0; y < rooms.GetLength(1); y++)
             {
-                Debug.DrawLine(GetWorldPosition(x,y,false), GetWorldPosition(x + 1, y, false), Color.white, Mathf.Infinity);
-                Debug.DrawLine(GetWorldPosition(x, y, false), GetWorldPosition(x, y + 1, false), Color.white, Mathf.Infinity);
+                Debug.DrawLine(GetWorldPosition(x,y,false), GetWorldPosition(x + 1, y, false), Color.black, Mathf.Infinity);
+                Debug.DrawLine(GetWorldPosition(x, y, false), GetWorldPosition(x, y + 1, false), Color.black, Mathf.Infinity);
                 if(rooms[x,y] == null)
                 {
                     rooms[x, y] = RoomManager.instance.LoadRoom();
@@ -34,7 +34,7 @@ public class Grid
         RoomManager.instance.Initialize(rooms, this);
     }
 
-    Vector2 GetWorldPosition(int x, int y, bool center)
+    public Vector2 GetWorldPosition(int x, int y, bool center)
     {
         if (center)
         {
